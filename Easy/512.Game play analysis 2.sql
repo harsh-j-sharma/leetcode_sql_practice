@@ -39,4 +39,20 @@
 -- +-----------+-----------+
 
 
-select player_id , device_id from activity
+SELECT player_id, device_id
+FROM (
+  SELECT player_id, device_id, ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY event_date) AS rn
+  FROM Activity
+) AS test
+WHERE rn = 1;
+--------------------------------------------or
+With table1 as
+(
+   Select player_id, device_id,
+   Rank() OVER(partition by player_id
+               order by event_date) as rk
+   From Activity
+)
+Select t.player_id, t.device_id
+from table1 as t
+where t.rk=1
